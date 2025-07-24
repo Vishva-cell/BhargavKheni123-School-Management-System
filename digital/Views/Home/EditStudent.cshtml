@@ -1,0 +1,123 @@
+﻿@model digital.Models.Student
+@{
+    ViewData["Title"] = "Edit Student";
+}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f8f9fa;">
+    <div class="card shadow-lg" style="width: 600px;">
+        <div class="card-header text-white text-center fw-bold" style="background-color: #222;">
+            EDIT STUDENT
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success text-center m-3">@TempData["Success"]</div>
+        }
+
+        <div class="card-body p-4">
+            <form asp-action="EditStudent" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="Full Name" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <label for="CategoryId">Standard</label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                    <option value="">-- Select Standard --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+
+                <label for="SubCategoryId">Class</label>
+                <select asp-for="SubCategoryId" class="form-control" asp-items="ViewBag.SubCategories">
+                    <option value="">-- Select Class --</option>
+                </select>
+                <span asp-validation-for="SubCategoryId" class="text-danger"></span>
+
+                <div class="form-group">
+                    <label asp-for="DOB" class="control-label"></label>
+                    <input asp-for="DOB" type="date" class="form-control" />
+                    <span asp-validation-for="DOB" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label><br />
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="Gender" value="Male"
+                               @(Model.Gender == "Male" ? "checked" : "") />
+                        <label class="form-check-label">Male</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="Gender" value="Female"
+                               @(Model.Gender == "Female" ? "checked" : "") />
+                        <label class="form-check-label">Female</label>
+                    </div>
+
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Mobile</label>
+                        <input asp-for="MobileNumber" class="form-control" placeholder="10-digit Mobile" pattern="\d{10}" title="Enter 10 digits" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Email  </label>
+                        <input asp-for="Email" class="form-control" placeholder="enter email id" required />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Password</label>
+                        <input asp-for="Password" class="form-control" placeholder="enter valid password" required />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label>Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your full address"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success px-5">UPDATE</button>
+                    <a asp-action="Student" class="btn btn-secondary px-4 ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#CategoryId').change(function () {
+                var categoryId = $(this).val();
+                $.ajax({
+                    url: '/Home/GetSubCategories?categoryId=' + categoryId,
+                    type: 'GET',
+                    success: function (data) {
+                        var subCatDropdown = $('#SubCategoryId');
+                        subCatDropdown.empty();
+                        subCatDropdown.append('<option value="">-- Select Class --</option>');
+                        $.each(data, function (i, item) {
+                            subCatDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

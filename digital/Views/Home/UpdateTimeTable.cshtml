@@ -1,0 +1,68 @@
+﻿@model digital.Models.TimeTable
+@{
+    ViewData["Title"] = "Update Table";
+}
+
+<div class="content-wrapper p-4">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Update Time Table </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <form asp-action="EditTimeTable" method="post">
+                            <input type="hidden" asp-for="Id" />
+
+                            <div class="form-group mb-3">
+                                <label class="fw-bold">Standard</label>
+                                <select asp-for="Std" class="form-control" asp-items="ViewBag.StdList">
+                                    <option value="">-- Select Standard --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="fw-bold">Class</label>
+                                <select asp-for="Class" class="form-control" asp-items="ViewBag.ClassList">
+                                    <option value="">-- Select Class --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="fw-bold">Subject</label>
+                                <input asp-for="Subject" class="form-control" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">Start Hour</label>
+                                    <select asp-for="StartHour" class="form-control" asp-items="ViewBag.Hours">
+                                        <option value="">-- Hr --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="fw-bold">End Hour</label>
+                                    <select asp-for="EndHour" class="form-control" asp-items="ViewBag.Hours">
+                                        <option value="">-- Hr --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-success me-2">
+                                    <i class="fas fa-save"></i> Update
+                                </button>
+                                <a href="/Home/TimeTableForm" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

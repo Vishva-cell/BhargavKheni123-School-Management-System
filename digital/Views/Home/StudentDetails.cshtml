@@ -1,0 +1,109 @@
+﻿@model digital.Models.Student
+
+@{
+    ViewData["Title"] = "Student Details";
+    int currentYear = DateTime.Now.Year;
+    int currentMonth = DateTime.Now.Month;
+}
+
+<div class="container mt-4" style="margin-left: 250px; margin-right: 20px;">
+    <h3 class="mb-4">Student Details</h3>
+
+    <dl class="row">
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">DOB</dt>
+        <dd class="col-sm-9">@Model.DOB.ToString("dd-MM-yyyy")</dd>
+
+        <dt class="col-sm-3">Gender</dt>
+        <dd class="col-sm-9">@Model.Gender</dd>
+
+        <dt class="col-sm-3">Mobile Number</dt>
+        <dd class="col-sm-9">@Model.MobileNumber</dd>
+
+        <dt class="col-sm-3">Address</dt>
+        <dd class="col-sm-9">@Model.Address</dd>
+
+
+
+        <dt class="col-sm-3">Standard</dt>
+        <dd class="col-sm-9">@Model.CategoryId</dd>
+
+        <dt class="col-sm-3">Class</dt>
+        <dd class="col-sm-9">@Model.SubCategoryId</dd>
+
+        <dt class="col-sm-3">Created Date</dt>
+        <dd class="col-sm-9">@Model.CreatedDate.ToString("dd-MM-yyyy hh:mm tt")</dd>
+    </dl>
+
+    <h3 class="mt-4">Attendance Details</h3>
+
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <label>Month</label>
+            <select id="MonthDropdown" class="form-control">
+                <option value="">-- Select Month --</option>
+                @{
+                    var months = System.Globalization.DateTimeFormatInfo.InvariantInfo.MonthNames;
+                    for (int i = 0; i < 12; i++)
+                    {
+                        <option value="@(@i + 1)">@months[i]</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Year</label>
+            <select id="YearDropdown" class="form-control">
+                <option value="">-- Select Year --</option>
+                @for (int y = 2025; y <= 2050; y++)
+                {
+                    <option value="@y">@y</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div id="attendanceTableContainer">
+    </div>
+
+
+
+
+@section Scripts {
+        <script>
+            $(document).ready(function () {
+                function loadAttendance() {
+                    var month = $('#MonthDropdown').val();
+                    var year = $('#YearDropdown').val();
+                    var studentId = '@Model.Id';
+
+                    if (month && year) {
+                        $.ajax({
+                            url: '/Home/GetStudentAttendance',
+                            type: 'GET',
+                            data: {
+                                studentId: studentId,
+                                month: month,
+                                year: year
+                            },
+                            success: function (result) {
+                                $('#attendanceTableContainer').html(result);
+                            },
+                            error: function () {
+                                alert('Something went wrong while loading attendance.');
+                            }
+                        });
+                    }
+                }
+
+                $('#MonthDropdown, #YearDropdown').change(function () {
+                    loadAttendance();
+                });
+            });
+        </script>
+
+
+
+}

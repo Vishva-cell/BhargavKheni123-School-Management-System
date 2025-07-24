@@ -1,0 +1,59 @@
+﻿@model digital.Models.SubCategoryViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+<div class="content-wrapper" style="min-height: 100vh;">
+    <div class="container-fluid pt-3 px-4">
+        <h4 class="text-center mb-4"><em>Class Page</em></h4>
+
+
+<form asp-action="Subcategories" method="post" class="row g-3 align-items-end mb-4">
+    <div class="col-auto">
+        <label class="form-label">Standard</label>
+        <select class="form-control" name="CategoryId" required>
+            @foreach (var item in Model.Categories)
+            {
+                var selected = Model.SubCategoryToEdit != null && Model.SubCategoryToEdit.CategoryId.ToString() == item.Value
+                    ? "selected" : "";
+
+                @:<option value="@item.Value" @selected>@item.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <label class="form-label">Class</label>
+        <input type="text" class="form-control" name="Name" value="@Model.SubCategoryToEdit?.Name" required />
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-success">Submit</button>
+    </div>
+</form>
+
+
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Standard</th>
+                    <th>class</th>
+                    <th>Edit / Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.SubCategoryList)
+                {
+                    <tr>
+                        <td>@item.Category?.Name</td>
+                        <td>@item.Name</td>
+                        <td>
+                            <a asp-action="EditSub" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-action="DeleteSub" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+</div>

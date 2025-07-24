@@ -1,0 +1,111 @@
+﻿@model digital.Models.TeacherMaster
+
+@{
+    ViewData["Title"] = "Edit Teacher Assignment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow p-4">
+                <h4 class="text-center mb-4">Edit Teacher Assignment</h4>
+
+                <form asp-action="UpdateTeacherMaster" method="post">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <div class="form-group">
+                        <label>Standard</label>
+                        <!-- Standard Dropdown -->
+                        <select name="CategoryId" id="CategoryId" class="form-control" required>
+                            <option value="">-- Select Standard --</option>
+                            @foreach (var cat in ViewBag.Categories)
+                            {
+                                if (cat.Id == Model.CategoryId)
+                                {
+                                    <option value="@cat.Id" selected>@cat.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            }
+                        </select>
+
+                        <!-- Class Dropdown -->
+                        <select name="SubCategoryId" id="SubCategoryId" class="form-control" required>
+                            <option value="">-- Select Class --</option>
+                            @foreach (var sub in ViewBag.SubCategories)
+                            {
+                                if (sub.Id == Model.SubCategoryId)
+                                {
+                                    <option value="@sub.Id" selected>@sub.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@sub.Id">@sub.Name</option>
+                                }
+                            }
+                        </select>
+
+                        <!-- Subject Dropdown -->
+                        <select name="SubjectId" class="form-control" required>
+                            <option value="">-- Select Subject --</option>
+                            @foreach (var subject in ViewBag.Subjects)
+                            {
+                                if (subject.Id == Model.SubjectId)
+                                {
+                                    <option value="@subject.Id" selected>@subject.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@subject.Id">@subject.Name</option>
+                                }
+                            }
+                        </select>
+
+                        <!-- Teacher Dropdown -->
+                        <select name="TeacherId" class="form-control" required>
+                            <option value="">-- Select Teacher --</option>
+                            @foreach (var teacher in ViewBag.Teachers)
+                            {
+                                if (teacher.Id == Model.TeacherId)
+                                {
+                                    <option value="@teacher.Id" selected>@teacher.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@teacher.Id">@teacher.Name</option>
+                                }
+                            }
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Update</button>
+                    <a asp-action="TeacherMasterPage" class="btn btn-secondary mt-3">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#CategoryId').change(function () {
+                var categoryId = $(this).val();
+                $('#SubCategoryId').empty().append('<option value="">Loading...</option>');
+
+                $.get('/Home/GetSubCategoriesbyteacher?categoryId=' + categoryId, function (data) {
+                    var subCategoryDropdown = $('#SubCategoryId');
+                    subCategoryDropdown.empty();
+                    subCategoryDropdown.append('<option value="">-- Select Class --</option>');
+                    $.each(data, function (i, item) {
+                        subCategoryDropdown.append('<option value="' + item.id + '">' + item.name + '</option>');
+                    });
+                });
+            });
+        });
+    </script>
+}
