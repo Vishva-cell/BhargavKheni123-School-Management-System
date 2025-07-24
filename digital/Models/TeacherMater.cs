@@ -23,7 +23,6 @@
 
             public DateTime CreatedDate { get; set; }
 
-
             public User Teacher { get; set; }
             public Category Category { get; set; }
             public SubCategory SubCategory { get; set; }

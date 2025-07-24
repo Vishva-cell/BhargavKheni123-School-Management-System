@@ -924,7 +924,6 @@ namespace digital.Controllers
             return RedirectToAction("TeacherMasterPage");
         }
 
-
         public IActionResult DeleteTeacherMaster(int id)
         {
             var item = _context.TeacherMaster.Find(id);
