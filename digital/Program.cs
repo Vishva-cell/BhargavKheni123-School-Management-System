@@ -22,6 +22,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITeacherMasterRepository, TeacherMasterRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+
 var app = builder.Build();
 
 

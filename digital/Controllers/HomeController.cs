@@ -14,14 +14,15 @@ namespace digital.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context; // ? DB context
+        private readonly ApplicationDbContext _context;
         private readonly string role;
         private readonly IUserRepository _userRepository;
         private readonly ITeacherMasterRepository _teacherMasterRepository;
         private readonly IAdminRepository _adminRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly IAttendanceRepository _attendanceRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository, IStudentRepository studentRepository)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository, IStudentRepository studentRepository, IAttendanceRepository attendanceRepository)
         {
             _logger = logger;
             _context = context;
@@ -29,6 +30,7 @@ namespace digital.Controllers
             _teacherMasterRepository = teacherMasterRepository;
             _adminRepository = adminRepository;
             _studentRepository = studentRepository;
+            _attendanceRepository = attendanceRepository;
         }
 
         public IActionResult Index()
@@ -637,12 +639,10 @@ namespace digital.Controllers
 
 
 
-        [HttpGet]
         public IActionResult AttendanceForm(int? CategoryId, int? SubCategoryId, int? Month, int? Year)
         {
             string role = HttpContext.Session.GetString("UserRole");
 
-            // If student is logged in
             if (role == "Student")
             {
                 string email = HttpContext.Session.GetString("UserEmail");
@@ -651,19 +651,15 @@ namespace digital.Controllers
                 if (student == null)
                     return RedirectToAction("Login");
 
-                var attendanceRecords = _context.Attendance
-                    .Where(a => a.StudentId == student.Id)
-                    .ToList();
-
+                var records = _attendanceRepository.GetAttendanceByStudentId(student.Id);
                 ViewBag.IsStudent = true;
-                return View(attendanceRecords);
+                return View(records);
             }
 
             ViewBag.IsStudent = false;
-
-            ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name", CategoryId);
+            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", CategoryId);
             ViewBag.SubCategories = new SelectList(
-                CategoryId.HasValue ? _context.SubCategories.Where(s => s.CategoryId == CategoryId.Value).ToList() : new List<SubCategory>(),
+                CategoryId.HasValue ? _context.SubCategories.Where(s => s.CategoryId == CategoryId) : new List<SubCategory>(),
                 "Id", "Name", SubCategoryId);
 
             if (CategoryId.HasValue && SubCategoryId.HasValue && Month.HasValue && Year.HasValue)
@@ -672,24 +668,14 @@ namespace digital.Controllers
                     .Where(s => s.CategoryId == CategoryId && s.SubCategoryId == SubCategoryId)
                     .ToList();
 
-                int totalDays = DateTime.DaysInMonth(Year.Value, Month.Value);
-                var attendance = _context.Attendance
-                    .Where(a => a.Month == Month && a.Year == Year && students.Select(s => s.Id).Contains(a.StudentId))
-                    .ToList();
+                var ids = students.Select(s => s.Id).ToList();
+                var attendance = _attendanceRepository.GetAttendanceByFilters(ids, Month.Value, Year.Value);
 
                 ViewBag.Students = students;
-                ViewBag.TotalDays = totalDays;
+                ViewBag.TotalDays = DateTime.DaysInMonth(Year.Value, Month.Value);
                 ViewBag.SelectedMonth = Month;
                 ViewBag.SelectedYear = Year;
                 ViewBag.AttendanceData = attendance;
-            }
-            else
-            {
-                ViewBag.Students = null;
-                ViewBag.TotalDays = 0;
-                ViewBag.SelectedMonth = null;
-                ViewBag.SelectedYear = null;
-                ViewBag.AttendanceData = new List<Attendance>();
             }
 
             return View();
@@ -704,68 +690,45 @@ namespace digital.Controllers
             int month = int.Parse(form["Month"]);
             int year = int.Parse(form["Year"]);
 
-
             var students = _context.Student
                 .Where(s => s.CategoryId == catId && s.SubCategoryId == subCatId)
                 .ToList();
 
-
             int totalDays = DateTime.DaysInMonth(year, month);
-            var existingRecords = _context.Attendance
-                .Where(a => a.Month == month && a.Year == year && students.Select(s => s.Id).Contains(a.StudentId))
-                .ToList();
+            var updatedRecords = new List<Attendance>();
 
             foreach (var student in students)
             {
                 for (int d = 1; d <= totalDays; d++)
                 {
                     string key = $"attend_{student.Id}_{d}";
-                    string status = form[key]; // Will be "Yes" or "No"
+                    string status = form[key];
 
-                    var record = existingRecords.FirstOrDefault(a =>
-                        a.StudentId == student.Id &&
-                        a.Day == d &&
-                        a.Month == month &&
-                        a.Year == year
-                    );
-
-                    if (record != null)
+                    updatedRecords.Add(new Attendance
                     {
-                        record.Attend = status;
-                        _context.Attendance.Update(record);
-                    }
-                    else
-                    {
-                        var newAtt = new Attendance
-                        {
-                            StudentId = student.Id,
-                            Day = d,
-                            Month = month,
-                            Year = year,
-                            FullDate = new DateTime(year, month, d),
-                            Attend = status
-                        };
-                        _context.Attendance.Add(newAtt);
-                    }
+                        StudentId = student.Id,
+                        Day = d,
+                        Month = month,
+                        Year = year,
+                        FullDate = new DateTime(year, month, d),
+                        Attend = status
+                    });
                 }
             }
-            _context.SaveChanges();
 
+            _attendanceRepository.SaveAttendance(updatedRecords);
 
-
-            int totalDaysSheet = DateTime.DaysInMonth(year, month);
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name", catId);
             ViewBag.SubCategories = new SelectList(_context.SubCategories.Where(x => x.CategoryId == catId), "Id", "Name", subCatId);
             ViewBag.Students = students;
-            ViewBag.TotalDays = totalDaysSheet;
+            ViewBag.TotalDays = totalDays;
             ViewBag.SelectedMonth = month;
             ViewBag.SelectedYear = year;
-            ViewBag.AttendanceData = _context.Attendance
-                .Where(a => a.Month == month && a.Year == year && students.Select(s => s.Id).Contains(a.StudentId))
-                .ToList();
+            ViewBag.AttendanceData = _attendanceRepository.GetAttendanceByFilters(students.Select(s => s.Id).ToList(), month, year);
 
             return View();
         }
+
 
         [HttpPost]
         public IActionResult SaveAttendanceAjax(int studentId, int day, int month, int year, string status)
