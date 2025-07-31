@@ -1,4 +1,5 @@
-﻿using digital.Models;
+﻿using digital.Interfaces;
+using digital.Models;
 using digital.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,16 @@ namespace digital.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ITeacherMasterRepository _teacherMasterRepository;
         private readonly IAdminRepository _adminRepository;
+        private readonly IStudentRepository _studentRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository, IStudentRepository studentRepository)
         {
             _logger = logger;
             _context = context;
             _userRepository = userRepository;
             _teacherMasterRepository = teacherMasterRepository;
             _adminRepository = adminRepository;
+            _studentRepository = studentRepository;
         }
 
         public IActionResult Index()
@@ -331,51 +334,24 @@ namespace digital.Controllers
             if (userRole == "Student")
             {
                 var studentId = HttpContext.Session.GetInt32("StudentId");
-
-                var student = _context.Student
-                    .FirstOrDefault(s => s.Id == studentId);
+                var student = _studentRepository.GetStudentById(studentId.Value);
 
                 if (student != null)
                 {
-                    ViewBag.CategoryName = _context.Categories
-                        .Where(c => c.Id == student.CategoryId)
-                        .Select(c => c.Name)
-                        .FirstOrDefault();
-
-                    ViewBag.SubCategoryName = _context.SubCategories
-                        .Where(sc => sc.Id == student.SubCategoryId)
-                        .Select(sc => sc.Name)
-                        .FirstOrDefault();
+                    ViewBag.Categories = _context.Categories.ToList();
+                    ViewBag.SubCategories = _context.SubCategories.ToList();
                 }
 
                 return View(student);
             }
 
-
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name");
             ViewBag.SubCategories = new SelectList(new List<SelectListItem>());
 
-            ViewBag.StudentList = _context.Student
-                .Select(s => new
-                {
-                    s.Id,
-                    s.Name,
-                    CategoryName = _context.Categories.FirstOrDefault(c => c.Id == s.CategoryId).Name,
-                    SubCategoryName = _context.SubCategories.FirstOrDefault(sc => sc.Id == s.SubCategoryId).Name,
-                    s.DOB,
-                    s.Gender,
-                    s.MobileNumber,
-                    s.Address,
-                    s.Email,
-                    s.Password
-                }).ToList();
+            ViewBag.StudentList = _studentRepository.GetAllStudentsWithCategoryAndSubCategory();
 
             return View(new Student());
         }
-
-
-
-
 
         [HttpPost]
         public IActionResult Student(Student student)

@@ -1,3 +1,4 @@
+using digital.Interfaces;
 using digital.Models;
 using digital.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITeacherMasterRepository, TeacherMasterRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 var app = builder.Build();
 
 
