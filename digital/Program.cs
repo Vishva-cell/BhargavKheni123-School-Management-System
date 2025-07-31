@@ -23,6 +23,7 @@ builder.Services.AddScoped<ITeacherMasterRepository, TeacherMasterRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
