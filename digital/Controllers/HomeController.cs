@@ -21,8 +21,10 @@ namespace digital.Controllers
         private readonly IAdminRepository _adminRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository, IStudentRepository studentRepository, IAttendanceRepository attendanceRepository)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository, IStudentRepository studentRepository, IAttendanceRepository attendanceRepository, ICategoryRepository categoryRepository)
         {
             _logger = logger;
             _context = context;
@@ -31,6 +33,7 @@ namespace digital.Controllers
             _adminRepository = adminRepository;
             _studentRepository = studentRepository;
             _attendanceRepository = attendanceRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public IActionResult Index()
@@ -163,18 +166,17 @@ namespace digital.Controllers
         [HttpGet]
         public IActionResult Category()
         {
-            var list = _context.Categories.ToList();
+            var list = _categoryRepository.GetAllCategories();
             return View(list);
         }
 
         [HttpPost]
         public IActionResult Category(Category cat)
         {
-            cat.CreatedDate = DateTime.Now;
-            _context.Categories.Add(cat);
-            _context.SaveChanges();
+            _categoryRepository.AddCategory(cat);
             return RedirectToAction("Category");
         }
+
 
         [HttpGet]
         public IActionResult Edit(int id)
@@ -502,6 +504,7 @@ namespace digital.Controllers
 
 
 
+
         [HttpGet]
         public IActionResult TimeTableForm()
         {
@@ -552,9 +555,6 @@ namespace digital.Controllers
 
             return View();
         }
-
-
-
 
 
         [HttpGet]
