@@ -113,7 +113,7 @@ namespace digital.Controllers
         [HttpPost]
         public IActionResult Register(string name, string email, string password, string role)
         {
-            var existingUser = _context.Users.FirstOrDefault(u => u.Email == email);
+            var existingUser = _userRepository.GetUserByEmail(email);
             if (existingUser != null)
             {
                 ViewBag.Error = "User already exists with this email.";
@@ -128,8 +128,7 @@ namespace digital.Controllers
                 Role = role
             };
 
-            _context.Users.Add(newUser);
-            _context.SaveChanges();
+            _userRepository.AddUser(newUser);
 
             if (role == "Student")
             {
@@ -139,7 +138,6 @@ namespace digital.Controllers
                     Email = email,
                     Password = password,
                     CreatedDate = DateTime.Now,
-
                     CategoryId = 1,
                     SubCategoryId = 1,
                     DOB = DateTime.Now,
@@ -148,8 +146,7 @@ namespace digital.Controllers
                     Address = "Not Provided"
                 };
 
-                _context.Student.Add(student);
-                _context.SaveChanges();
+                _studentRepository.AddStudent(student);
 
                 HttpContext.Session.SetString("Email", student.Email);
                 HttpContext.Session.SetString("Role", "Student");
@@ -159,6 +156,7 @@ namespace digital.Controllers
 
             return RedirectToAction("Login");
         }
+
 
         [HttpGet]
         public IActionResult Category()
