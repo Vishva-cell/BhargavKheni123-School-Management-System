@@ -1,4 +1,5 @@
 using digital.Models;
+using digital.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,12 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 var app = builder.Build();
+
+
+
+
 
 if (!app.Environment.IsDevelopment())
 {

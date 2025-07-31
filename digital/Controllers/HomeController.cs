@@ -1,4 +1,5 @@
 ﻿using digital.Models;
+using digital.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,11 +15,13 @@ namespace digital.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context; // ? DB context
         private readonly string role;
+        private readonly IUserRepository _userRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository)
         {
             _logger = logger;
-            _context = context; // ? inject context
+            _context = context;
+            _userRepository = userRepository;
         }
 
         public IActionResult Index()
@@ -52,7 +55,7 @@ namespace digital.Controllers
         [HttpPost]
         public IActionResult Login(string email, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+            var user = _userRepository.GetUserByEmailAndPassword(email, password);
 
             if (user == null)
             {
