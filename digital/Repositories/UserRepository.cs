@@ -14,5 +14,9 @@ namespace digital.Repositories
         {
             return _context.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
         }
+        public List<User> GetTeachers()
+        {
+            return _context.Users.Where(u => u.Role == "Teacher").ToList();
+        }
     }
 }

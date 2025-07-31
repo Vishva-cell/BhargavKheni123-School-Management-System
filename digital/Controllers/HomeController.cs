@@ -16,12 +16,14 @@ namespace digital.Controllers
         private readonly ApplicationDbContext _context; // ? DB context
         private readonly string role;
         private readonly IUserRepository _userRepository;
+        private readonly ITeacherMasterRepository _teacherMasterRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository)
         {
             _logger = logger;
             _context = context;
             _userRepository = userRepository;
+            _teacherMasterRepository = teacherMasterRepository;
         }
 
         public IActionResult Index()
@@ -833,16 +835,11 @@ namespace digital.Controllers
         {
             ViewBag.Categories = _context.Categories.ToList();
             ViewBag.Subjects = _context.Subject.ToList();
-            ViewBag.Teachers = _context.Users.Where(u => u.Role == "Teacher").ToList();
+            ViewBag.Teachers = _userRepository.GetTeachers();
 
-            var data = _context.TeacherMaster
-                .Include(tm => tm.Category)
-                .Include(tm => tm.SubCategory)
-                .Include(tm => tm.Subject)
-                .Include(tm => tm.Teacher)
-                .ToList();
+            var data = _teacherMasterRepository.GetAllWithRelations();
 
-            return View("TeacherMaster", data); // View will receive List<TeacherMaster>
+            return View("TeacherMaster", data); 
         }
 
         [HttpGet]
