@@ -19,6 +19,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITeacherMasterRepository, TeacherMasterRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 var app = builder.Build();
 
 

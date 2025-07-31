@@ -17,13 +17,15 @@ namespace digital.Controllers
         private readonly string role;
         private readonly IUserRepository _userRepository;
         private readonly ITeacherMasterRepository _teacherMasterRepository;
+        private readonly IAdminRepository _adminRepository;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IUserRepository userRepository, ITeacherMasterRepository teacherMasterRepository, IAdminRepository adminRepository)
         {
             _logger = logger;
             _context = context;
             _userRepository = userRepository;
             _teacherMasterRepository = teacherMasterRepository;
+            _adminRepository = adminRepository;
         }
 
         public IActionResult Index()
